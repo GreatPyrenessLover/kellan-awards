@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kellan Awards</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:#0f0f0f;
+  color:white;
+  font-family:Arial,sans-serif;
+}
+
+#login{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+#login input{
+  padding:12px;
+  width:250px;
+  margin:10px;
+  border:none;
+  border-radius:8px;
+}
+
+#login button{
+  padding:12px 20px;
+  cursor:pointer;
+  border:none;
+  border-radius:8px;
+}
+
+#site{
+  display:none;
+}
+
+header{
+  background:#181818;
+  padding:20px;
+  text-align:center;
+}
+
+header img{
+  width:100%;
+  max-height:250px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+#channelName{
+  margin-top:15px;
+}
+
+.container{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:20px;
+  padding:20px;
+}
+
+.player{
+  background:#181818;
+  padding:15px;
+  border-radius:10px;
+}
+
+.player video{
+  width:100%;
+  border-radius:10px;
+}
+
+.sidebar{
+  background:#181818;
+  border-radius:10px;
+  padding:10px;
+  max-height:80vh;
+  overflow-y:auto;
+}
+
+.videoCard{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+  cursor:pointer;
+  padding:8px;
+  border-radius:8px;
+}
+
+.videoCard:hover{
+  background:#252525;
+}
+
+.videoCard img{
+  width:140px;
+  height:80px;
+  object-fit:cover;
+  border-radius:6px;
+}
+
+.videoInfo h3{
+  font-size:14px;
+}
+
+.videoInfo p{
+  font-size:12px;
+  color:#aaa;
+  margin-top:4px;
+}
+
+#msg{
+  margin-top:10px;
+  color:#ff8080;
+}
+
+@media(max-width:900px){
+  .container{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h1>🔒 Private Channel</h1>
+  <input type="password" id="pw" placeholder="Password">
+  <button onclick="login()">Enter</button>
+  <p id="msg"></p>
+</div>
+
+<div id="site">
+
+<header>
+  <img id="banner" alt="">
+  <h1 id="channelName"></h1>
+</header>
+
+<div class="container">
+
+<div class="player">
+  <video id="mainVideo" controls>
+    <source id="videoSource" src="">
+  </video>
+
+  <h2 id="videoTitle"></h2>
+  <p id="videoDescription"></p>
+</div>
+
+<div class="sidebar" id="videoList"></div>
+
+</div>
+</div>
+
+<script src="data.js"></script>
+
+<script>
+function login() {
+  const input = document.getElementById("pw").value;
+
+  if (input === DATA.password) {
+    sessionStorage.setItem("logged", "yes");
+
+    document.getElementById("login").style.display = "none";
+    document.getElementById("site").style.display = "block";
+
+    loadSite();
+  } else {
+    document.getElementById("msg").textContent = "Wrong password";
+  }
+}
+
+function loadSite() {
+  document.getElementById("channelName").textContent =
+    DATA.channel.name;
+
+  document.getElementById("banner").src =
+    DATA.channel.banner;
+
+  loadVideo(0);
+
+  let html = "";
+
+  DATA.videos.forEach((v, index) => {
+    html += `
+      <div class="videoCard" onclick="loadVideo(${index})">
+        <img src="${v.thumbnail}" alt="">
+        <div class="videoInfo">
+          <h3>${v.title}</h3>
+          <p>${v.description}</p>
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("videoList").innerHTML = html;
+}
+
+function loadVideo(index) {
+  const v = DATA.videos[index];
+
+  document.getElementById("videoSource").src = v.file;
+
+  const player = document.getElementById("mainVideo");
+  player.load();
+
+  document.getElementById("videoTitle").textContent =
+    v.title;
+
+  document.getElementById("videoDescription").textContent =
+    v.description;
+}
+
+if (sessionStorage.getItem("logged") === "yes") {
+  document.getElementById("login").style.display = "none";
+  document.getElementById("site").style.display = "block";
+  loadSite();
+}
+</script>
+
+</body>
+</html>
